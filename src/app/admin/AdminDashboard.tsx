@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabaseClient';
 import { useState, useEffect } from 'react';
+import ImageUploadModal from './ImageUploadModal';
 
 // Define interfaces for our data structures
 interface Candidate {
@@ -43,11 +44,11 @@ const AdminDashboard = () => {
   const [newResult, setNewResult] = useState({ event_id: '', candidate_id: '', points: '' });
   const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const [editingCandidate, setEditingCandidate] = useState<Candidate | null>(null);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [editingResult, setEditingResult] = useState<Result | null>(null);
+  const [uploadingCandidate, setUploadingCandidate] = useState<Candidate | null>(null);
 
 
   useEffect(() => {
@@ -141,20 +142,15 @@ const AdminDashboard = () => {
     setNewPassword('');
   };
 
-  const handleImageUpload = async (candidateId: string) => {
-      if (!imageFile) return;
-
-      const fileName = `${candidateId}-${Date.now()}`;
-      await supabase.storage.from('candidate_images').upload(fileName, imageFile);
-      const { data: { publicUrl } } = supabase.storage.from('candidate_images').getPublicUrl(fileName);
-      await supabase.from('candidates').update({ image_url: publicUrl }).eq('id', candidateId);
-
-      setImageFile(null);
-      fetchData();
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 p-8">
+      {uploadingCandidate && (
+        <ImageUploadModal
+          candidate={uploadingCandidate}
+          onClose={() => setUploadingCandidate(null)}
+          onUpload={fetchData}
+        />
+      )}
       <h1 className="text-4xl font-bold text-miac-green text-center mb-10">Admin Dashboard</h1>
       {message && <p className="text-center text-miac-gold bg-miac-green p-3 rounded-md my-4">{message}</p>}
 
@@ -174,8 +170,10 @@ const AdminDashboard = () => {
           <ul className="mt-4 space-y-2">
             {candidates.map(c => (
               <li key={c.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                <span>{c.name} ({c.teams?.name})</span>
+                <img src={c.image_url || '/logo.jpg'} alt={c.name} className="w-10 h-10 rounded-full mr-4 object-cover"/>
+                <span className="flex-grow">{c.name} ({c.teams?.name})</span>
                 <div>
+                  <button onClick={() => setUploadingCandidate(c)} className="text-sm bg-green-500 text-white px-2 py-1 rounded mr-2">Image</button>
                   <button onClick={() => { setEditingCandidate(c); setNewCandidate({ name: c.name, team_id: c.team_id }); }} className="text-sm bg-blue-500 text-white px-2 py-1 rounded mr-2">Edit</button>
                   <button onClick={() => handleDeleteCandidate(c.id)} className="text-sm bg-red-500 text-white px-2 py-1 rounded">Del</button>
                 </div>
