@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
 import AdminDashboard from './AdminDashboard';
 
 export default function AdminPage() {
@@ -13,26 +12,18 @@ export default function AdminPage() {
     e.preventDefault();
     setError('');
 
-    if (password === 'shanukpshan1') {
-      // This is a simplified, insecure "password check".
-      // A real app should use Supabase Auth with a user account.
-      // For this project, we are simulating a password-only system.
-      // We will sign in with a dummy email to get an authenticated session.
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: 'admin@kalaveeryam.com', // A dummy email for the admin session
-        password: 'admin-secure-password', // A secure password you set for this dummy user in Supabase Auth
-      });
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
 
-      if (error) {
-        setError('Failed to authenticate with Supabase. Please check console.');
-        console.error('Supabase login error:', error);
-        return;
-      }
+    const data = await response.json();
 
+    if (response.ok) {
       setSession(data.session);
-
     } else {
-      setError('Incorrect password.');
+      setError(data.error || 'An unknown error occurred.');
     }
   };
 
