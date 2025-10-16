@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from "next/image";
 import Link from "next/link";
 import { supabase } from '@/lib/supabaseClient';
+import { motion } from "framer-motion";
 
 interface CandidateResult {
   name: string;
@@ -92,85 +93,86 @@ export default function TeamsPage() {
     fetchTeamData();
   }, []);
 
-  if (loading) {
-    return (
-        <div className="min-h-screen bg-miac-white text-miac-green flex justify-center items-center">
-            <header className="bg-miac-green text-miac-white p-4 flex items-center justify-between w-full absolute top-0">
-              <div className="flex items-center">
-                <Image src="/logo.jpg" alt="Kalaveeryam Logo" width={50} height={50} className="rounded-full"/>
-                <h1 className="text-2xl font-bold ml-4">Kalaveeryam Arts Fest</h1>
-              </div>
-              <nav>
-                <Link href="/home" className="mx-2 hover:text-miac-gold">Home</Link>
-                <Link href="/results" className="mx-2 hover:text-miac-gold">Results</Link>
-                <Link href="/admin" className="mx-2 hover:text-miac-gold">Admin</Link>
-                <Link href="/about" className="mx-2 hover:text-miac-gold">About</Link>
-              </nav>
-            </header>
-            <p className="text-2xl animate-pulse">Loading Team Data...</p>
-        </div>
-    );
-  }
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.3 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+  };
+
 
   return (
     <div className="min-h-screen bg-miac-white text-miac-green">
-      <header className="bg-miac-green text-miac-white p-4 flex items-center justify-between">
+      <motion.header initial={{ y: -100 }} animate={{ y: 0 }} transition={{ type: "spring", stiffness: 120 }} className="bg-miac-green text-miac-white p-4 flex items-center justify-between shadow-lg">
         <div className="flex items-center">
           <Image src="/logo.jpg" alt="Kalaveeryam Logo" width={50} height={50} className="rounded-full"/>
           <h1 className="text-2xl font-bold ml-4">Kalaveeryam Arts Fest</h1>
         </div>
         <nav>
-          <Link href="/home" className="mx-2 hover:text-miac-gold">Home</Link>
-          <Link href="/results" className="mx-2 hover:text-miac-gold">Results</Link>
-          <Link href="/admin" className="mx-2 hover:text-miac-gold">Admin</Link>
-          <Link href="/about" className="mx-2 hover:text-miac-gold">About</Link>
+          <Link href="/home" className="mx-2 hover:text-miac-gold transition-colors">Home</Link>
+          <Link href="/results" className="mx-2 hover:text-miac-gold transition-colors">Results</Link>
+          <Link href="/admin" className="mx-2 hover:text-miac-gold transition-colors">Admin</Link>
+          <Link href="/about" className="mx-2 hover:text-miac-gold transition-colors">About</Link>
         </nav>
-      </header>
+      </motion.header>
 
       <main className="p-8">
-        <section className="text-center mb-12">
+        <motion.section initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4">Team Leaderboard</h2>
-          <p className="text-lg">Live points, leaderboards, and team details.</p>
-        </section>
+          <p className="text-lg text-gray-600">Live points, leaderboards, and team details.</p>
+        </motion.section>
 
-        <section className="grid md:grid-cols-2 gap-8 text-center mb-12">
-          {teams.map((team) => (
-            <div key={team.id} className="p-6 bg-gray-100 rounded-lg shadow-md">
-              <h3 className="text-3xl font-bold text-miac-green mb-2">{team.name}</h3>
-              <p className="text-2xl font-semibold text-miac-gold">Total Points: {team.total_points}</p>
-            </div>
-          ))}
-        </section>
+        {loading ? (
+           <p className="text-center text-2xl animate-pulse">Loading Team Data...</p>
+        ) : (
+        <>
+            <motion.section variants={containerVariants} initial="hidden" animate="visible" className="grid md:grid-cols-2 gap-8 text-center mb-12">
+              {teams.map((team) => (
+                <motion.div variants={itemVariants} key={team.id} className="p-6 bg-white rounded-lg shadow-lg">
+                  <h3 className="text-3xl font-bold text-miac-green mb-2">{team.name}</h3>
+                  <p className="text-4xl font-bold text-miac-gold">{team.total_points}</p>
+                   <p className="text-sm text-gray-500">Total Points</p>
+                </motion.div>
+              ))}
+            </motion.section>
 
-        <section>
-          <h3 className="text-3xl font-bold text-center mb-8">Team Details</h3>
-          <div className="grid md:grid-cols-2 gap-8">
-            {teams.map((team) => (
-              <div key={team.id}>
-                <h4 className="text-2xl font-bold mb-4 text-center">{team.name}</h4>
-                <div className="bg-white p-4 rounded-lg shadow-md">
-                  <p className="font-bold">Leaders: {team.leaders.join(', ')}</p>
-                  <ul className="mt-4">
-                    <li className="flex justify-between py-1 border-b font-bold">
-                      <span>Candidate</span>
-                      <span>Points</span>
-                    </li>
-                    {team.candidates.length > 0 ? (
-                      team.candidates.map((candidate, index) => (
-                        <li key={index} className="flex justify-between py-1 border-b">
-                          <span>{candidate.name}</span>
-                          <span>{candidate.points}</span>
+            <motion.section variants={containerVariants} initial="hidden" animate="visible">
+              <h3 className="text-3xl font-bold text-center mb-8">Team Details</h3>
+              <div className="grid md:grid-cols-2 gap-8">
+                {teams.map((team) => (
+                  <motion.div variants={itemVariants} key={team.id} className="bg-white p-6 rounded-lg shadow-lg">
+                    <h4 className="text-2xl font-bold mb-4 text-center">{team.name}</h4>
+                    <div >
+                      <p className="font-bold text-center mb-4">Leaders: {team.leaders.join(', ')}</p>
+                      <ul className="mt-4 space-y-2">
+                        <li className="flex justify-between py-2 border-b font-bold text-lg">
+                          <span>Candidate</span>
+                          <span>Points</span>
                         </li>
-                      ))
-                    ) : (
-                      <li className="text-center py-2">No results yet.</li>
-                    )}
-                  </ul>
-                </div>
+                        {team.candidates.length > 0 ? (
+                          team.candidates.map((candidate, index) => (
+                            <li key={index} className="flex justify-between py-2 border-b hover:bg-gray-50">
+                              <span>{candidate.name}</span>
+                              <span className="font-semibold">{candidate.points}</span>
+                            </li>
+                          ))
+                        ) : (
+                          <li className="text-center py-4 text-gray-500">No results yet.</li>
+                        )}
+                      </ul>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
+            </motion.section>
+        </>
+        )}
       </main>
 
       <footer className="bg-miac-green text-miac-white text-center p-4 mt-12">

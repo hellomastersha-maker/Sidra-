@@ -1,10 +1,40 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function HomePage() {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+      },
+    },
+  };
+
   return (
     <div className="min-h-screen bg-miac-white text-miac-green">
-      <header className="bg-miac-green text-miac-white p-4 flex items-center justify-between">
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 120 }}
+        className="bg-miac-green text-miac-white p-4 flex items-center justify-between shadow-lg"
+      >
         <div className="flex items-center">
           <Image
             src="/logo.jpg"
@@ -16,59 +46,55 @@ export default function HomePage() {
           <h1 className="text-2xl font-bold ml-4">Kalaveeryam Arts Fest</h1>
         </div>
         <nav>
-          <Link href="/results" className="mx-2 hover:text-miac-gold">Results</Link>
-          <Link href="/teams" className="mx-2 hover:text-miac-gold">Teams</Link>
-          <Link href="/admin" className="mx-2 hover:text-miac-gold">Admin</Link>
-          <Link href="/about" className="mx-2 hover:text-miac-gold">About</Link>
+          <Link href="/results" className="mx-2 hover:text-miac-gold transition-colors">Results</Link>
+          <Link href="/teams" className="mx-2 hover:text-miac-gold transition-colors">Teams</Link>
+          <Link href="/admin" className="mx-2 hover:text-miac-gold transition-colors">Admin</Link>
+          <Link href="/about" className="mx-2 hover:text-miac-gold transition-colors">About</Link>
         </nav>
-      </header>
+      </motion.header>
 
       <main className="p-8">
-        <section className="text-center mb-12">
+        <motion.section
+          variants={itemVariants}
+          initial="hidden"
+          animate="visible"
+          className="text-center mb-16"
+        >
           <Image
             src="/logo.jpg"
             alt="Kalaveeryam Arts Fest Main Logo"
-            width={400}
-            height={400}
+            width={350}
+            height={350}
             priority
-            className="mx-auto mb-8 rounded-lg"
+            className="mx-auto mb-8 rounded-lg shadow-2xl"
           />
-          <h2 className="text-4xl font-bold mb-4">Event Highlights</h2>
-          <p className="text-lg">
-            Join us for a celebration of art, culture, and talent at Maunathul Islam Arabic College.
+          <h2 className="text-5xl font-bold mb-4 text-miac-green">Event Highlights</h2>
+          <p className="text-xl text-gray-600">
+            A celebration of art, culture, and talent at Maunathul Islam Arabic College.
           </p>
-        </section>
+        </motion.section>
 
-        <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-          <div className="p-6 bg-gray-100 rounded-lg shadow-md">
-            <h3 className="text-2xl font-bold mb-2">Live Results</h3>
-            <p className="mb-4">Check out the latest results and scores from all the events.</p>
-            <Link href="/results" className="bg-miac-gold text-miac-green font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-105">
-              View Results
-            </Link>
-          </div>
-          <div className="p-6 bg-gray-100 rounded-lg shadow-md">
-            <h3 className="text-2xl font-bold mb-2">Team Dashboards</h3>
-            <p className="mb-4">Follow your favorite team's progress and see the leaderboards.</p>
-            <Link href="/teams" className="bg-miac-gold text-miac-green font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-105">
-              See Teams
-            </Link>
-          </div>
-          <div className="p-6 bg-gray-100 rounded-lg shadow-md">
-            <h3 className="text-2xl font-bold mb-2">Admin Portal</h3>
-            <p className="mb-4">Admins can manage events, candidates, and results.</p>
-            <Link href="/admin" className="bg-miac-gold text-miac-green font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-105">
-              Admin Login
-            </Link>
-          </div>
-          <div className="p-6 bg-gray-100 rounded-lg shadow-md">
-            <h3 className="text-2xl font-bold mb-2">About the Fest</h3>
-            <p className="mb-4">Learn more about Kalaveeryam and its organizers.</p>
-            <Link href="/about" className="bg-miac-gold text-miac-green font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-105">
-              Learn More
-            </Link>
-          </div>
-        </section>
+        <motion.section
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 text-center"
+        >
+          {[
+            { title: "Live Results", desc: "Check out the latest results from all events.", link: "/results" },
+            { title: "Team Dashboards", desc: "Follow your team's progress and leaderboards.", link: "/teams" },
+            { title: "Admin Portal", desc: "Manage events, candidates, and results.", link: "/admin" },
+            { title: "About the Fest", desc: "Learn more about Kalaveeryam and its organizers.", link: "/about" },
+          ].map((item, i) => (
+            <motion.div key={i} variants={itemVariants} className="p-6 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow transform hover:-translate-y-2">
+              <h3 className="text-2xl font-bold mb-2 text-miac-green">{item.title}</h3>
+              <p className="mb-4 text-gray-600">{item.desc}</p>
+              <Link href={item.link} className="bg-miac-gold text-miac-green font-bold py-2 px-6 rounded-full transition-transform transform hover:scale-105 inline-block">
+                View
+              </Link>
+            </motion.div>
+          ))}
+        </motion.section>
       </main>
 
       <footer className="bg-miac-green text-miac-white text-center p-4 mt-12">

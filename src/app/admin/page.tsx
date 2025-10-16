@@ -12,10 +12,20 @@ export default function AdminPage() {
     e.preventDefault();
     setError('');
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@kalaveeryam.com';
+
+
     const response = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({
+        password,
+        email: adminEmail,
+        supabaseUrl,
+        supabaseAnonKey
+      }),
     });
 
     const data = await response.json();
